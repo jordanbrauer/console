@@ -28,6 +28,18 @@ type Command struct {
 	disabled bool
 }
 
+type Option struct {
+	Name        string
+	Description string
+	Default     any
+	Value       any
+}
+
+type Argument struct {
+	Name        string
+	Description string
+}
+
 // Register a new command to the CLI app.
 func (command *Command) Setup(cli *App) *Command {
 	command.app = cli

@@ -6,7 +6,7 @@ import (
 	"log"
 )
 
-var Help = &Command{
+var help = &Command{
 	Name:        "help",
 	Description: "Display this message or learn about other commands",
 	Run: func(command *Command) ExitCode {

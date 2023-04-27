@@ -5,36 +5,23 @@ import (
 	"os"
 )
 
-type Configuration struct{}
-
-func configure() Configuration {
-	return Configuration{}
-}
-
 type App struct {
 	Version  string
 	Commands map[string]*Command
-	Config   Configuration
+	Config   configuration
+
+	header string
 }
 
-type Option struct {
-	Name        string
-	Description string
-	Default     any
-	Value       any
-}
-
-type Argument struct {
-	Name        string
-	Description string
-}
-
-// New will create a CLI app for the given block chain.
-func New(version string) *App {
+// Create a new CLI application with the given release version.
+func New(release string) *App {
 	return &App{
-		Version:  version,
-		Commands: make(map[string]*Command),
-		Config:   configure(),
+		Commands: map[string]*Command{
+			help.Name:    help,
+			version.Name: version,
+		},
+		Config:  configure(),
+		Version: release,
 	}
 }
 
@@ -48,9 +35,9 @@ func (cli *App) Register(commands ...*Command) {
 // Run the CLI app with any given user input.
 func (cli *App) Run() int {
 	if len(os.Args) < 2 {
-		Help.Setup(cli)
+		help.Setup(cli)
 
-		return int(Help.Run(Help))
+		return int(help.Run(help))
 	}
 
 	command, exists := cli.Commands[os.Args[1]]

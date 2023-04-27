@@ -2,7 +2,7 @@ package console
 
 import "fmt"
 
-var Version = &Command{
+var version = &Command{
 	Name:        "version",
 	Description: "Show the currently installed version of Mist",
 	Run: func(command *Command) ExitCode {
