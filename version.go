@@ -9,5 +9,4 @@ var version = &Command{
 		fmt.Println(command.app.Version)
 
 		return 0
-	},
-}
+	}}
