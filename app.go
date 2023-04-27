@@ -32,6 +32,11 @@ func (cli *App) Register(commands ...*Command) {
 	}
 }
 
+// Build a string to be printed above the main help list of available commands.
+func (cli *App) Splash(header func() string) {
+	cli.header = header()
+}
+
 // Run the CLI app with any given user input.
 func (cli *App) Run() int {
 	if len(os.Args) < 2 {

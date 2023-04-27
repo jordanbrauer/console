@@ -1,9 +1,9 @@
 package console
 
 import (
-	"encoding/base64"
 	"fmt"
 	"log"
+	"strings"
 )
 
 var help = &Command{
@@ -14,11 +14,9 @@ var help = &Command{
 		argc := len(argv)
 
 		if argc == 0 {
-			logo, _ := base64.StdEncoding.DecodeString("ICAgICAgICAgICAgICAgCiBfIF8gIG8gIF8gXylfIAopICkgKSAoICggIChfICAKICAgICAgICBfKSAgICAg")
-
-			fmt.Print("\033[3mWelcome to,\033[0m\n")
-			fmt.Println(string(logo))
-			fmt.Printf("\nVersion \033[34m%s\033[0m, \033[3mmade with \033[31m<3\033[0m \033[3mby jorb\033[0m", command.app.Version)
+			if "" != strings.TrimSpace(command.app.header) {
+				fmt.Print(command.app.header)
+			}
 
 			commands := make([]*Command, len(command.app.Commands))
 			var index int

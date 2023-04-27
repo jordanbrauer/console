@@ -54,6 +54,10 @@ and register one or more commands to be executed by the user.
 cli := console.New("your version")
 
 cli.Register(noop, greet)
+
+cli.Splash(func () string {
+    // logo, author(s), version, licensing, whatever you want...
+})
 ```
 
 ### Running the CLI
