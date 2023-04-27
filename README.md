@@ -45,6 +45,33 @@ var noop = &console.Command{
     }}
 ```
 
+#### Adding sub commands
+
+Commands are recursive. That is to say that they can have commands of their own.
+To do this, simply populate the `Commands` property with one or more `Command`
+pointers, instead of defining a `Run` function.
+
+```go
+var parent = &console.Command{
+    Name: "foo",
+    Description: "i am the parent",
+    Commands: []*Command{child},
+}
+
+var child = &console.Command{
+    Name: "bar",
+    Description: "i am the child",
+    Run: func() ExitCode {
+        return 0
+    }}
+```
+
+which would be used like so
+
+```bash
+go run main.go foo bar
+```
+
 ### Configuring the CLI
 
 Once you have some commands, you can create a new CLI app, give it a version,
