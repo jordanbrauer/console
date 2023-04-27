@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-type ExitCode = uint8
+type ExitCode uint8
 
 type Command struct {
 	Name          string
@@ -169,28 +169,30 @@ var runHelpCommand = func(command *Command) ExitCode {
 }
 
 func runSubCommand(command *Command) ExitCode {
-	if len(command.flags.Args()) > 0 {
-		for _, subcommand := range command.Commands {
-			if subcommand.Name != command.flags.Arg(0) {
-				continue
-			}
+	if len(command.flags.Args()) <= 0 {
+		return 1
+	}
 
-			subcommand.Setup(command.app)
-
-			newArgs := command.flags.Args()[1:]
-
-			if len(newArgs) > 0 {
-				subcommand.Parse(newArgs)
-			}
-
-			if len(newArgs) != len(subcommand.Arguments) {
-				subcommand.Name = fmt.Sprintf("%s %s", command.Name, subcommand.Name)
-
-				return helpCommand(subcommand)
-			}
-
-			return subcommand.Run(subcommand)
+	for _, subcommand := range command.Commands {
+		if subcommand.Name != command.flags.Arg(0) {
+			continue
 		}
+
+		subcommand.Setup(command.app)
+
+		newArgs := command.flags.Args()[1:]
+
+		if len(newArgs) > 0 {
+			subcommand.Parse(newArgs)
+		}
+
+		if len(newArgs) != len(subcommand.Arguments) {
+			subcommand.Name = fmt.Sprintf("%s %s", command.Name, subcommand.Name)
+
+			return helpCommand(subcommand)
+		}
+
+		return subcommand.Run(subcommand)
 	}
 
 	return 1
