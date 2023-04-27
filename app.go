@@ -1,4 +1,4 @@
-package cli
+package console
 
 import (
 	"log"
