@@ -4,13 +4,13 @@ A minimalist framework for CLI applications written in Go.
 
 ## Setup
 
-### Dependency
+### As a dependency
 
 ```bash
 go get github.com/jordanbrauer/console
 ```
 
-### Development
+### For development
 
 1. Clone (or fork) the repository
 2. Checkout a new branch from `trunk`
@@ -28,19 +28,19 @@ form of configuration. At a minimum, your command should have a `Name` and `Run`
 property defined.
 
 ```go
-var noop = &cli.Command{
-    Name: "noop",
-    Description: "nada, zip, ziltch, nothing",
-    Run: func() ExitCode {
-        return 0
-    }}
-
-var greet = &cli.Command{
+var greet = &console.Command{
     Name: "greet",
     Description: "fubar snafu",
     Run: func(fubar *Command) ExitCode {
         println("hello, world!")
 
+        return 0
+    }}
+
+var noop = &console.Command{
+    Name: "noop",
+    Description: "nada, zip, ziltch, nothing",
+    Run: func() ExitCode {
         return 0
     }}
 ```
@@ -51,9 +51,9 @@ Once you have some commands, you can create a new CLI app, give it a version,
 and register one or more commands to be executed by the user.
 
 ```go
-app := cli.New("your version")
+cli := console.New("your version")
 
-app.Register(noop, greet)
+cli.Register(noop, greet)
 ```
 
 ### Running the CLI
@@ -63,5 +63,5 @@ result to `os.Exit` so that the user's operating system can see the exit code
 returned by the executed command.
 
 ```go
-os.Exit(app.Run())
+os.Exit(cli.Run())
 ```
