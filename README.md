@@ -1,6 +1,8 @@
 # console
 
-A minimalist framework for CLI applications written in Go.
+A minimalist framework for beautiful CLI applications written in Go.
+
+<img width="818" alt="image" src="https://user-images.githubusercontent.com/18744334/235200395-361b95cc-6f17-44a4-a6d0-eac002eb1efe.png">
 
 ## Setup
 
