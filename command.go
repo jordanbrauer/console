@@ -139,7 +139,7 @@ var helpCommand = func(help *Command) ExitCode {
 	return 0
 }
 
-var demandCommand = func(command *Command) ExitCode {
+var DemandCommand = func(command *Command) ExitCode {
 	exit := runSubCommand(command)
 
 	if 0 == exit {
@@ -152,13 +152,13 @@ var demandCommand = func(command *Command) ExitCode {
 	return exit
 }
 
-var demandHelpCommand = func(command *Command) ExitCode {
+var HelpAndDemandCommand = func(command *Command) ExitCode {
 	helpCommand(command)
 
-	return demandCommand(command)
+	return DemandCommand(command)
 }
 
-var runHelpCommand = func(command *Command) ExitCode {
+var RunOrHelpCommand = func(command *Command) ExitCode {
 	exit := runSubCommand(command)
 
 	if 0 == exit {
