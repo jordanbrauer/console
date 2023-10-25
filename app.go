@@ -8,7 +8,6 @@ import (
 type App struct {
 	Version  string
 	Commands map[string]*Command
-	Config   configuration
 
 	header string
 }
@@ -20,7 +19,6 @@ func New(release string) *App {
 			help.Name:    help,
 			version.Name: version,
 		},
-		Config:  configure(),
 		Version: release,
 	}
 }
