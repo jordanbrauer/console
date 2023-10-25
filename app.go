@@ -40,7 +40,7 @@ func (cli *App) Splash(header func() string) {
 // Run the CLI app with any given user input.
 func (cli *App) Run() int {
 	if len(os.Args) < 2 {
-		help.Setup(cli)
+		help.setup(cli)
 
 		return int(help.Run(help))
 	}
@@ -51,10 +51,10 @@ func (cli *App) Run() int {
 		log.Panicf("Unknown command given '%s'", os.Args[1])
 	}
 
-	command.Setup(cli)
-	command.Parse(os.Args[2:])
+	command.setup(cli)
+	command.parse(os.Args[2:])
 
-	if !command.Parsed() {
+	if !command.parsed() {
 		log.Panic("uh-oh! can not parse command")
 	}
 

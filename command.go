@@ -3,6 +3,7 @@ package console
 import (
 	"flag"
 	"fmt"
+	"time"
 
 	// "github.com/charmbracelet/glamour"
 	"log"
@@ -32,40 +33,134 @@ type Option struct {
 	Name        string
 	Description string
 	Default     any
-	Value       any
+	Type        any
+
+	value any
+	// modes: array, none/bool, required (value), optional (may have value or no), negatable (no-*)
 }
 
 type Argument struct {
 	Name        string
 	Description string
+	// modes: optional, required, array
 }
 
 // Register a new command to the CLI app.
-func (command *Command) Setup(cli *App) *Command {
+func (command *Command) setup(cli *App) *Command {
 	command.app = cli
-
-	// for _, argument := range command.Arguments {
-	// }
-
 	command.flags = flag.NewFlagSet(command.Name, flag.ExitOnError)
 
 	for _, option := range command.Options {
-		command.flags.String(option.Name, "", option.Description)
+		switch option.Type {
+		case "int":
+			if option.Default == nil {
+				option.Default = 0
+			}
+
+			option.value = command.flags.Int(option.Name, option.Default.(int), option.Description)
+		case "bool", "boolean":
+			if option.Default == nil {
+				option.Default = false
+			}
+
+			option.value = command.flags.Bool(option.Name, option.Default.(bool), option.Description)
+		case "string":
+			if option.Default == nil {
+				option.Default = ""
+			}
+
+			option.value = command.flags.String(option.Name, option.Default.(string), option.Description)
+		case "duration":
+			if option.Default == nil {
+				option.Default = time.Duration(0)
+			}
+
+			option.value = command.flags.Duration(option.Name, option.Default.(time.Duration), option.Description)
+		default:
+			if option.Default == nil {
+				option.Default = ""
+			}
+
+			option.value = command.flags.String(option.Name, option.Default.(string), option.Description)
+		}
 	}
 
 	return command
 }
 
-func (command *Command) Option(name string) flag.Value {
-	return command.flags.Lookup(name).Value
-}
-
-func (command *Command) Parsed() bool {
+// Determine if the command argument & option inputs have been parsed
+func (command *Command) parsed() bool {
 	return command.flags.Parsed()
 }
 
-func (command *Command) Parse(arguments []string) error {
+// parse the given command input
+func (command *Command) parse(arguments []string) error {
 	return command.flags.Parse(arguments)
+}
+
+func (command *Command) option(name string) any {
+	for _, option := range command.Options {
+		if name == option.Name {
+			return option.value
+		}
+	}
+
+	return nil
+}
+
+// Read an argument value by it's name.
+func (command *Command) Argument(name string) string {
+	var position int
+
+	for index, argument := range command.Arguments {
+		if name == argument.Name {
+			position = index
+
+			break
+		}
+	}
+
+	return command.flags.Arg(position)
+}
+
+func (command *Command) OptionBool(name string) bool {
+	value, ok := command.option(name).(*bool)
+
+	if !ok {
+		return false
+	}
+
+	return *value
+}
+
+func (command *Command) OptionInt(name string) int {
+	value, ok := command.option(name).(*int)
+
+	if !ok {
+		return 0
+	}
+
+	return *value
+}
+
+func (command *Command) OptionString(name string) string {
+	value, ok := command.option(name).(*string)
+
+	if !ok {
+		return ""
+	}
+
+	return *value
+}
+
+func (command *Command) OptionDuration(name string) time.Duration {
+	value, ok := command.option(name).(*time.Duration)
+
+	if !ok {
+		return time.Duration(0)
+	}
+
+	return *value
 }
 
 // var markdown, _ = glamour.NewTermRenderer(
@@ -124,11 +219,25 @@ var helpCommand = func(help *Command) ExitCode {
 		}
 	}
 
-	if len(help.Options) > 0 {
+	hasOptions := len(help.Options) > 0
+
+	if hasOptions {
+		if hasArguments {
+			fmt.Println()
+		}
+
 		fmt.Println("\033[33mOptions:\033[0m")
+
+		for _, option := range help.Options {
+			fmt.Printf("  \033[32m%-18s\033[0m%s\n", option.Name, option.Description)
+		}
 	}
 
 	if len(help.Commands) > 0 {
+		if hasArguments || hasOptions {
+			fmt.Println()
+		}
+
 		fmt.Println("\033[33mCommands:\033[0m")
 
 		for _, command := range commands {
@@ -178,15 +287,16 @@ func runSubCommand(command *Command) ExitCode {
 			continue
 		}
 
-		subcommand.Setup(command.app)
+		subcommand.setup(command.app)
 
 		newArgs := command.flags.Args()[1:]
 
 		if len(newArgs) > 0 {
-			subcommand.Parse(newArgs)
+			subcommand.parse(newArgs)
 		}
 
-		if len(newArgs) != len(subcommand.Arguments) {
+		if len(subcommand.flags.Args()) != len(subcommand.Arguments) {
+			// TODO: error handling/validation message
 			subcommand.Name = fmt.Sprintf("%s %s", command.Name, subcommand.Name)
 
 			return helpCommand(subcommand)
