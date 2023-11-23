@@ -17,6 +17,7 @@ type Command struct {
 	Name          string
 	Description   string
 	Documentation string
+	Hidden        bool
 	Run           func(command *Command) ExitCode
 	Arguments     []*Argument
 	Options       []*Option
@@ -25,7 +26,6 @@ type Command struct {
 	flags    *flag.FlagSet
 	app      *App
 	main     bool
-	hidden   bool
 	disabled bool
 }
 
@@ -241,6 +241,10 @@ var helpCommand = func(help *Command) ExitCode {
 		fmt.Println("\033[33mCommands:\033[0m")
 
 		for _, command := range commands {
+			if command.Hidden {
+				continue
+			}
+
 			fmt.Printf("  \033[32m%-18s\033[0m%s\n", command.Name, command.Description)
 		}
 	}
