@@ -303,10 +303,10 @@ func runSubCommand(command *Command) ExitCode {
 			subcommand.parse(newArgs)
 		}
 
-		if len(subcommand.flags.Args()) != len(subcommand.Arguments) {
-			// TODO: error handling/validation message
-			subcommand.Name = fmt.Sprintf("%s %s", command.Name, subcommand.Name)
+		subcommand.Name = fmt.Sprintf("%s %s", command.Name, subcommand.Name)
 
+		if len(subcommand.flags.Args()) != len(subcommand.Arguments) && len(subcommand.Commands) == 0 {
+			// TODO: error handling/validation message
 			return helpCommand(subcommand)
 		}
 
