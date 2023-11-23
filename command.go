@@ -110,7 +110,7 @@ func (command *Command) option(name string) any {
 
 // Read an argument value by it's name.
 func (command *Command) Argument(name string) string {
-	var position int
+	var position int = -1
 
 	for index, argument := range command.Arguments {
 		if name == argument.Name {
@@ -118,6 +118,10 @@ func (command *Command) Argument(name string) string {
 
 			break
 		}
+	}
+
+	if position == -1 {
+		log.Fatalf("Unknown argument: %s\n", name)
 	}
 
 	return command.flags.Arg(position)
