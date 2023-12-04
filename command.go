@@ -43,6 +43,17 @@ func (command *Command) setup(cli *App) *Command {
 
 	for _, option := range command.Options {
 		switch option.Type {
+		case "array":
+			if option.Default == nil {
+				option.Default = []string{}
+			}
+
+			var value array
+
+			command.flags.Var(&value, option.Name, option.Description)
+
+			option.value = &value
+
 		case "int":
 			if option.Default == nil {
 				option.Default = 0
@@ -116,6 +127,22 @@ func (command *Command) Argument(name string) string {
 	}
 
 	return command.flags.Arg(position)
+}
+
+func (command *Command) OptionStringArray(name string) []string {
+	value, ok := command.option(name).(*array)
+
+	if !ok {
+		return []string{}
+	}
+
+	values := make([]string, len(*value))
+
+	for index, value := range *value {
+		values[index] = value
+	}
+
+	return values
 }
 
 func (command *Command) OptionBool(name string) bool {
