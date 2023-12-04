@@ -129,6 +129,31 @@ func (command *Command) Argument(name string) string {
 	return command.flags.Arg(position)
 }
 
+func (command *Command) ArgumentRest(name string) []string {
+	var position int = -1
+
+	for index, argument := range command.Arguments {
+		if name == argument.Name {
+			position = index
+
+			break
+		}
+	}
+
+	if position == -1 {
+		log.Fatalf("Unknown argument: %s\n", name)
+	}
+
+	args := command.flags.Args()
+
+	return args[position:]
+
+}
+
+func (command *Command) ArgumentArray() []string {
+	return command.flags.Args()
+}
+
 func (command *Command) OptionStringArray(name string) []string {
 	value, ok := command.option(name).(*array)
 
