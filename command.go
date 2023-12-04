@@ -11,6 +11,13 @@ import (
 	"strings"
 )
 
+type Bits uint8
+
+func (bits Bits) Set(flag Bits) Bits    { return bits | flag }
+func (bits Bits) Clear(flag Bits) Bits  { return bits &^ flag }
+func (bits Bits) Toggle(flag Bits) Bits { return bits ^ flag }
+func (bits Bits) Has(flag Bits) bool    { return bits&flag != 0 }
+
 type ExitCode uint8
 
 type Command struct {
