@@ -322,8 +322,15 @@ func runSubCommand(command *Command) ExitCode {
 		}
 
 		subcommand.Name = fmt.Sprintf("%s %s", command.Name, subcommand.Name)
+		requiredArguments := []*Argument{}
 
-		if len(subcommand.flags.Args()) != len(subcommand.Arguments) && len(subcommand.Commands) == 0 {
+		for _, a := range subcommand.Arguments {
+			if !a.Optional() {
+				requiredArguments = append(requiredArguments, a)
+			}
+		}
+
+		if len(subcommand.flags.Args()) < len(requiredArguments) && len(subcommand.Commands) == 0 {
 			// TODO: error handling/validation message
 			return helpCommand(subcommand)
 		}
