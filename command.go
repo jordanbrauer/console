@@ -36,22 +36,6 @@ type Command struct {
 	disabled bool
 }
 
-type Option struct {
-	Name        string
-	Description string
-	Default     any
-	Type        any
-
-	value any
-	// modes: array, none/bool, required (value), optional (may have value or no), negatable (no-*)
-}
-
-type Argument struct {
-	Name        string
-	Description string
-	// modes: optional, required, array
-}
-
 // Register a new command to the CLI app.
 func (command *Command) setup(cli *App) *Command {
 	command.app = cli
