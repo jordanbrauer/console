@@ -34,6 +34,7 @@ type Command struct {
 	app      *App
 	main     bool
 	disabled bool
+	exitCode ExitCode
 }
 
 // Register a new command to the CLI app.
@@ -97,7 +98,19 @@ func (command *Command) parsed() bool {
 
 // parse the given command input
 func (command *Command) parse(arguments []string) error {
-	return command.flags.Parse(arguments)
+	err := command.flags.Parse(arguments)
+
+	if err != nil {
+		for _, parsing := range command.app.listeners["parse.flags"] {
+			parsing(command)
+		}
+
+		for _, parsing := range command.app.listeners["parse.args"] {
+			parsing(command)
+		}
+	}
+
+	return err
 }
 
 func (command *Command) option(name string) any {
@@ -208,6 +221,10 @@ func (command *Command) OptionDuration(name string) time.Duration {
 	}
 
 	return *value
+}
+
+func (command *Command) ExitCode() ExitCode {
+	return command.exitCode
 }
 
 // var markdown, _ = glamour.NewTermRenderer(
@@ -355,12 +372,32 @@ func runSubCommand(command *Command) ExitCode {
 			}
 		}
 
-		if len(subcommand.flags.Args()) < len(requiredArguments) && len(subcommand.Commands) == 0 {
-			// TODO: error handling/validation message
-			return helpCommand(subcommand)
+		hasSubcommands := len(subcommand.Commands) > 0
+
+		if !hasSubcommands {
+			for _, executing := range subcommand.app.listeners["execution"] {
+				executing(subcommand)
+			}
 		}
 
-		return subcommand.Run(subcommand)
+		var code ExitCode
+
+		if len(subcommand.flags.Args()) < len(requiredArguments) && !hasSubcommands {
+			// TODO: error handling/validation message
+			code = helpCommand(subcommand)
+		} else {
+			code = subcommand.Run(subcommand)
+		}
+
+		if !hasSubcommands {
+			subcommand.exitCode = code
+
+			for _, exiting := range subcommand.app.listeners["exit"] {
+				exiting(subcommand)
+			}
+		}
+
+		return code
 	}
 
 	return 1
